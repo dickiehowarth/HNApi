@@ -2,7 +2,13 @@
 
 namespace HNApi.Services
 {
-    public class HNHttpClient
+    public interface IHNHttpClient
+    {
+        Task<List<int>> GetBestStoryIds();
+        Task<StoryItem?> GetStory(int id);
+    }
+
+    public class HNHttpClient : IHNHttpClient
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _config;

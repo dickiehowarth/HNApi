@@ -1,39 +1,35 @@
 ﻿using HNApi.Models;
 using HNApi.Services;
-using System.Collections.Concurrent;
 
 namespace HNApi.Repositories
 {
     public class HNRepository
     {
-        private readonly HNHttpClient _hnClient;
-        private readonly ILogger<HNRepository> _logger;
+        private const int RefreshInterval = 300;
+        private readonly IHNHttpClient _hnClient;
+        private readonly IInMemoryCache _cache;
 
-        // change to an IMemoryCache
-        private readonly ConcurrentDictionary<int, StoryItem> _storyItems = new();
-
-        public HNRepository(HNHttpClient hnClient, ILogger<HNRepository> logger)
+        public HNRepository(IHNHttpClient hnClient, ILogger<InMemoryCache> logger)
         {
             _hnClient = hnClient;
-            _logger = logger;
+            _cache = new InMemoryCache(logger, RefreshInterval);
         }
 
         private async Task<StoryItem?> GetStoryItem(int id)
         {
-            if (!_storyItems.TryGetValue(id, out var item))
+            if (!_cache.TryGetValue(id, out var item))
             {
                 item = await _hnClient.GetStory(id);
-                _logger.LogInformation("Cache miss, Get Story Item from Client API {id}", id);
 
                 if (item != null)
                 {
-                    _storyItems.TryAdd(id, item);
+                    _cache.TryAdd(id, item);
                 }
             }
             return item;
         }
 
-        public async Task<List<StoryItem>> GetBestStories(int? count)
+        public async Task<List<StoryItem>> GetBestStories(int? count = null)
         {
             var ids = await _hnClient.GetBestStoryIds();
 
@@ -41,7 +37,8 @@ namespace HNApi.Repositories
 
             var storyItems = await Task.WhenAll(tasks);
 
-            var orderedStoriesQuery = storyItems.Where(si => si != null).Select(si => si!).OrderByDescending(si => si!.Score).AsQueryable();
+            var orderedStoriesQuery = storyItems.Where(si => si != null)
+                .Select(si => si!).OrderByDescending(si => si!.Score).AsQueryable();
 
             if (count != null)
             {

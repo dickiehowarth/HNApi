@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HNApi.Controllers
 {
     [ApiController]
-    [Route("api/Stories")]
+    [Route("api/hackernews")]
     public class StoriesController : ControllerBase
     {
         private readonly ILogger<StoriesController> _logger;
@@ -17,10 +17,10 @@ namespace HNApi.Controllers
             _hnRepository = hnRepository;
         }
 
-        [HttpGet(Name = "GetBestStories{%d}")]
-        public async Task<ActionResult<List<Story>>> GetBestStories(int? count)
+        [HttpGet("beststories", Name = "GetBestStories")]
+        public async Task<ActionResult<List<Story>>> GetBestStories(int? count = null)
         {
-            _logger.LogInformation("Stories: {count}", count);
+            _logger.LogInformation("Best Stories: {count}", count);
 
             var storyItems = await _hnRepository.GetBestStories(count);
 

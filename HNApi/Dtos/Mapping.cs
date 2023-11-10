@@ -9,7 +9,7 @@ namespace HNApi.Dtos
             return new Story
             {
                 Title = storyItem.Title,
-                PostedBy = storyItem.PostedBy,
+                PostedBy = storyItem.By,
                 Time = storyItem.Time,
                 Score = storyItem.Score,
                 CommentCount = storyItem.Descendants,
