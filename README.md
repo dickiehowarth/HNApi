@@ -68,4 +68,5 @@ After discussion if this was to be moved from a POC to production code:
 Obtain requirenments for production environment
 1. Secure Api depending on requirements
 2. Add Production configuration annd support
+3. Move to Minimal Api
 ....
